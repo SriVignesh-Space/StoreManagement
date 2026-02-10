@@ -63,6 +63,9 @@ public class VinylService {
         Customer customer = customerService.getCustomerByID(customerId);
         Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() ->  new VinylException("Vinyl not found with Id : " + vinylId + " Deletion failed"));
 
+        if(vinyl.getStockQuantity() <= 0) throw new VinylException("Out of Stock : " + vinylId);
+        vinyl.setStockQuantity(vinyl.getStockQuantity() - 1);
+
         customer.getBoughtVinyl().add(vinyl);
         vinyl.getCustomers().add(customer);
         vinylRepo.save(vinyl);
@@ -73,12 +76,18 @@ public class VinylService {
 
     // add cart feature
     public CartItem addCartItem(String customerId, String vinylId){
-        CartItem cartItem = new CartItem();
 
         Customer customer = customerService.getCustomerByID(customerId);
 
         Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() -> new VinylException("Vinyl Not found : "+vinylId + "Cart Updation Failed"));
 
+        CartItem items = cartItemRepo.findByCustomerAndVinyl(customer, vinyl);
+        
+        if(items != null){
+            throw new VinylException(vinylId + "already in your cart ");
+        }
+
+        CartItem cartItem = new CartItem();
         cartItem.setCustomer(customer);
         cartItem.setVinyl(vinyl);
         cartItemRepo.save(cartItem);

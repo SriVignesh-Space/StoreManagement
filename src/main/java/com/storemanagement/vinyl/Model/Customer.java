@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +29,11 @@ public class Customer {
     private String customerId;
 
     private String name;
-    private String email, phone;
+
+    @Column(unique = true)
+    private String email;
+    
+    private String phone;
 
     @ManyToMany(mappedBy = "customers")
     @JsonIgnore
