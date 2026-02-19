@@ -34,6 +34,11 @@ public class CustomerService {
 
     public Customer addCustomer(Customer customer){
 
+        Customer data = customerRepo.findByEmail(customer.getEmail()).orElse(null);
+        if(data != null){
+            throw new CustomerException("Customer Already found");
+        }
+
         List<Address> address = customer.getAddresses();
         if(address != null){
             for(Address ad : address){
@@ -79,4 +84,5 @@ public class CustomerService {
         return customerRepo.save(customer);        
     }
 
+    
 }
