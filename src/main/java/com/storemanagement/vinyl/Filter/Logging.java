@@ -1,4 +1,4 @@
-package com.storemanagement.vinyl.Middleware;
+package com.storemanagement.vinyl.Filter;
 
 
 import java.io.IOException;
