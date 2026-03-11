@@ -57,8 +57,8 @@ public class VinylController {
     }
 
     @GetMapping("/order")
-    public Vinyl addVinyl(@RequestParam String customerId, @RequestParam String vinylId) {
-        return vinylService.addVinylToCustomer(customerId, vinylId);
+    public Vinyl addVinyl(@RequestParam String customerId, @RequestParam String vinylId, @RequestParam int quantity) {
+        return vinylService.addVinylToCustomer(customerId, vinylId, quantity);
     } 
 
     @GetMapping("/addcart")

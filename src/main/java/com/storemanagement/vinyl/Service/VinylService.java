@@ -59,13 +59,13 @@ public class VinylService {
     }
 
     // order logic
-    public Vinyl addVinylToCustomer(String customerId, String vinylId){
+    public Vinyl addVinylToCustomer(String customerId, String vinylId, int quantity){
 
         Customer customer = customerService.getCustomerByID(customerId);
         Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() ->  new VinylException("Vinyl not found with Id : " + vinylId + " Deletion failed"));
 
-        if(vinyl.getStockQuantity() <= 0) throw new VinylException("Out of Stock : " + vinylId);
-        vinyl.setStockQuantity(vinyl.getStockQuantity() - 1);
+        if(vinyl.getStockQuantity() - quantity <= 0 || vinyl.getStockQuantity() <= 0) throw new VinylException("Out of Stock : " + vinylId);
+        vinyl.setStockQuantity(vinyl.getStockQuantity() - quantity);
 
         customer.getBoughtVinyl().add(vinyl);
         vinyl.getCustomers().add(customer);

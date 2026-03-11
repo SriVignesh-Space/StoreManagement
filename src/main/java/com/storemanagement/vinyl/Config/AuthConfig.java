@@ -31,7 +31,7 @@ public class AuthConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http){
         return http
-                .cors(cors -> {})
+                .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

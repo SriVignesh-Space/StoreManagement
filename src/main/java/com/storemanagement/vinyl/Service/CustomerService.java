@@ -14,6 +14,7 @@ import com.storemanagement.vinyl.Model.Role;
 import com.storemanagement.vinyl.Model.Vinyl;
 import com.storemanagement.vinyl.Repository.AddressRepo;
 import com.storemanagement.vinyl.Repository.CustomerRepo;
+import com.storemanagement.vinyl.dto.CustomerDto;
 
 @Service
 public class CustomerService {
@@ -54,11 +55,12 @@ public class CustomerService {
         return customerRepo.save(customer);
     }
 
-    public Customer updateCustomer(String customerId, Customer customer){
+    public Customer updateCustomer(String customerId, CustomerDto customer){
         Customer data = customerRepo.findById(customerId).orElseThrow(() -> new CustomerException("Customer Not Found :" + customerId + "Updation failed"));
         if(customer != null){
-            customerRepo.delete(data);
-            return customerRepo.save(customer);
+            data.setName(customer.getUsername());
+            data.setPhone(customer.getPhone());
+            return customerRepo.save(data);
         }
         else throw new CustomerException("Request Body is not in correct format" + customerId + "Updation failed");
     }
