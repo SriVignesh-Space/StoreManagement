@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.storemanagement.vinyl.Exception.CustomerException;
 import com.storemanagement.vinyl.Model.Address;
 import com.storemanagement.vinyl.Model.Customer;
+import com.storemanagement.vinyl.Model.Role;
 import com.storemanagement.vinyl.Model.Vinyl;
 import com.storemanagement.vinyl.Repository.AddressRepo;
 import com.storemanagement.vinyl.Repository.CustomerRepo;
@@ -18,10 +20,12 @@ public class CustomerService {
 
     CustomerRepo customerRepo;
     AddressRepo addressRepo;
+    PasswordEncoder passwordEncoder;
     
-    public CustomerService(CustomerRepo customerRepo, AddressRepo addressRepo){
+    public CustomerService(CustomerRepo customerRepo, AddressRepo addressRepo, PasswordEncoder passwordEncoder){
         this.customerRepo = customerRepo;
         this.addressRepo = addressRepo;
+        this.passwordEncoder = passwordEncoder;
     }
     
     public List<Customer> getAllCustomers(){
@@ -38,7 +42,8 @@ public class CustomerService {
         if(data != null){
             throw new CustomerException("Customer Already found");
         }
-
+        customer.setRole(Role.USER);
+        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         List<Address> address = customer.getAddresses();
         if(address != null){
             for(Address ad : address){
@@ -79,10 +84,20 @@ public class CustomerService {
 
     // address logic 
     public Customer addAddress(String customerId, Address address){
+        System.out.println(address.toString());
         Customer customer = customerRepo.findById(customerId).orElseThrow(() -> new CustomerException("Customer Not found : "+ customerId+" address updation failed" ));
+        address.setCustomer(customer);
+        addressRepo.save(address);
         customer.getAddresses().add(address);
         return customerRepo.save(customer);        
     }
 
+    public Customer deleteAddress(String customerId, String addressId ){
+        Customer customer = getCustomerByID(customerId);
+        Address address = addressRepo.findById(addressId).orElseThrow(() -> new CustomerException("Address not Found : " + addressId + " Address deletion failed")); 
+        customer.getAddresses().remove(address);
+        addressRepo.deleteById(addressId);
+        return customerRepo.save(customer);
+    }
     
 }

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtUtil {
     private final long EXPIRATION = 1000*60*60;
-    private final String secret_key = "my-super-secret-key-my-super-secret-key";
+    private final String secret_key = "my-super-secret-key-my-super-secret-788";
     private final SecretKey key = Keys.hmacShaKeyFor(secret_key.getBytes());
 
     public String generateToken(String email){
@@ -47,8 +47,6 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token, String username, UserDetails userdetails){
-        System.out.println(username.equals(userdetails.getUsername()));
-        System.out.println(isExpired(token));
         return username.equals(userdetails.getUsername()) && !isExpired(token);
     }
 }

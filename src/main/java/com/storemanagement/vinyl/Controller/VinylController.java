@@ -61,9 +61,20 @@ public class VinylController {
         return vinylService.addVinylToCustomer(customerId, vinylId);
     } 
 
-    @PostMapping("/addcart")
+    @GetMapping("/addcart")
     public CartItem addCartItem(@RequestParam String customerId, @RequestParam String vinylId) {
         return vinylService.addCartItem(customerId, vinylId);
+    } 
+
+    @GetMapping("/getcart")
+    public List<Vinyl> getCartForCustomerId(@RequestParam String customerId) {
+        return vinylService.getCartForCustomerId(customerId);
+    }
+    
+    @GetMapping("/deletecart")
+    public String getMethodName(@RequestParam String customerId, @RequestParam String vinylId){
+        if(vinylService.removeCartItem(customerId, vinylId));
+            return new String("Delete Item Successfully");
     }
     
 }

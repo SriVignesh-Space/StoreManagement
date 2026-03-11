@@ -1,5 +1,6 @@
 package com.storemanagement.vinyl.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,5 +93,30 @@ public class VinylService {
         cartItem.setVinyl(vinyl);
         cartItemRepo.save(cartItem);
         return cartItem;
+    }
+
+    // get cart Logic
+    public List<Vinyl> getCartForCustomerId(String customerId){
+        Customer customer = customerService.getCustomerByID(customerId);
+
+        List<CartItem> cartItems = customer.getCartItems();
+        List<Vinyl> vinyls = new ArrayList<>();
+
+        for(CartItem cartItem : cartItems){
+            vinyls.add(cartItem.getVinyl());
+        }
+        return vinyls;
+    }
+
+    // remove cart item
+    public boolean removeCartItem(String customerId, String vinylId)
+    {
+        Customer customer = customerService.getCustomerByID(customerId);
+        Vinyl vinyl = getVinylById(vinylId);
+        CartItem cartItem = cartItemRepo.findByCustomerAndVinyl(customer, vinyl);
+        cartItemRepo.delete(cartItem);
+        customer.getCartItems().remove(cartItem);
+        customerService.customerRepo.save(customer);
+        return true;
     }
 }

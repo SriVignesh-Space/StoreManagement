@@ -4,5 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.storemanagement.vinyl.Model.Address;
 
-public interface AddressRepo extends CrudRepository<Address, Long> {
+public interface AddressRepo extends CrudRepository<Address, String> {
 }
