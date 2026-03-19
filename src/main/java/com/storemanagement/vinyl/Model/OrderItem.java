@@ -18,16 +18,19 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address {
-
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    private String address, country, pincode;
+    private String orderItemId;
 
     @ManyToOne
-    @JoinColumn(name = "customerId", referencedColumnName = "customerId")
+    @JoinColumn(name = "order_id")
     @JsonIgnore
-    private Customer customer;
+    private Order order;
+
+    @ManyToOne
+    @JoinColumn(name = "vinyl_id")
+    private Vinyl vinyl;
+
+    private int quantity;
 }

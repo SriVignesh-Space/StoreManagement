@@ -9,10 +9,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,30 +42,37 @@ public class Customer implements UserDetails{
     @Column(unique = true)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
     private String password;
-    private String role;
+    
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     private String phone;
 
-    @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
-    @JsonIgnore
-    List<Vinyl> boughtVinyl = new ArrayList<>();
+    // @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
+    // @JsonIgnore
+    // List<Vinyl> boughtVinyl = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    List<CartItem> cartItems = new ArrayList<>();
+    List<CartItem> cartItems = new ArrayList<>();   
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    List<Order> orders = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role));
+        return List.of(new SimpleGrantedAuthority("ROLE_"+role.name()));
     }
 
     @Override
     public String toString() {
         return "Customer [customerId=" + customerId + ", name=" + name + ", email=" + email + ", password=" + password
-                + ", role=" + role + ", phone=" + phone + ", boughtVinyl=" + boughtVinyl + ", addresses=" + addresses
+                + ", role=" + role + ", phone=" + phone + ", orders=" + orders + ", addresses=" + addresses
                 + ", cartItems=" + cartItems + "]";
     }
 

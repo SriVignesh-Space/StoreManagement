@@ -1,27 +1,36 @@
 package com.storemanagement.vinyl.Service;
 
+import com.storemanagement.vinyl.Repository.AddressRepo;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
 import com.storemanagement.vinyl.Exception.VinylException;
 import com.storemanagement.vinyl.Model.CartItem;
 import com.storemanagement.vinyl.Model.Customer;
 import com.storemanagement.vinyl.Model.Vinyl;
 import com.storemanagement.vinyl.Repository.CartItemRepo;
+import com.storemanagement.vinyl.Repository.OrderRepo;
 import com.storemanagement.vinyl.Repository.VinylRepo;
-
 @Service
 public class VinylService {
+
+    AddressRepo addressRepo;
     VinylRepo vinylRepo;
     CustomerService customerService;
     CartItemRepo cartItemRepo;
+    OrderRepo orderRepo;
 
-    VinylService(VinylRepo vinylRepo, CustomerService customerService, CartItemRepo cartItemRepo){
+
+    VinylService(VinylRepo vinylRepo, CustomerService customerService, CartItemRepo cartItemRepo, AddressRepo addressRepo, OrderRepo orderRepo){
         this.vinylRepo = vinylRepo;
         this.customerService =  customerService;
         this.cartItemRepo = cartItemRepo;
+        this.addressRepo = addressRepo;
+        this.orderRepo = orderRepo;
     }
 
     public Vinyl addVinyl(Vinyl vinyl){
@@ -57,22 +66,6 @@ public class VinylService {
         return response;
     }
 
-    // order logic
-    public Vinyl addVinylToCustomer(String customerId, String vinylId){
-
-        Customer customer = customerService.getCustomerByID(customerId);
-        Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() ->  new VinylException("Vinyl not found with Id : " + vinylId + " Deletion failed"));
-
-        if(vinyl.getStockQuantity() <= 0) throw new VinylException("Out of Stock : " + vinylId);
-        vinyl.setStockQuantity(vinyl.getStockQuantity() - 1);
-
-        customer.getBoughtVinyl().add(vinyl);
-        vinyl.getCustomers().add(customer);
-        vinylRepo.save(vinyl);
-        customerService.saveCustomer(customer);
-        return vinyl;
-    }
-
 
     // add cart feature
     public CartItem addCartItem(String customerId, String vinylId){
@@ -92,5 +85,30 @@ public class VinylService {
         cartItem.setVinyl(vinyl);
         cartItemRepo.save(cartItem);
         return cartItem;
+    }
+
+    // get cart Logic
+    public List<Vinyl> getCartForCustomerId(String customerId){
+        Customer customer = customerService.getCustomerByID(customerId);
+
+        List<CartItem> cartItems = customer.getCartItems();
+        List<Vinyl> vinyls = new ArrayList<>();
+
+        for(CartItem cartItem : cartItems){
+            vinyls.add(cartItem.getVinyl());
+        }
+        return vinyls;
+    }
+
+    // remove cart item
+    public boolean removeCartItem(String customerId, String vinylId)
+    {
+        Customer customer = customerService.getCustomerByID(customerId);
+        Vinyl vinyl = getVinylById(vinylId);
+        CartItem cartItem = cartItemRepo.findByCustomerAndVinyl(customer, vinyl);
+        cartItemRepo.delete(cartItem);
+        customer.getCartItems().remove(cartItem);
+        customerService.saveCustomer(customer);
+        return true;
     }
 }
