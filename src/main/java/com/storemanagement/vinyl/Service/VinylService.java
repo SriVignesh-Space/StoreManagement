@@ -1,28 +1,36 @@
 package com.storemanagement.vinyl.Service;
 
+import com.storemanagement.vinyl.Repository.AddressRepo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+
 import com.storemanagement.vinyl.Exception.VinylException;
 import com.storemanagement.vinyl.Model.CartItem;
 import com.storemanagement.vinyl.Model.Customer;
 import com.storemanagement.vinyl.Model.Vinyl;
 import com.storemanagement.vinyl.Repository.CartItemRepo;
+import com.storemanagement.vinyl.Repository.OrderRepo;
 import com.storemanagement.vinyl.Repository.VinylRepo;
-
 @Service
 public class VinylService {
+
+    AddressRepo addressRepo;
     VinylRepo vinylRepo;
     CustomerService customerService;
     CartItemRepo cartItemRepo;
+    OrderRepo orderRepo;
 
-    VinylService(VinylRepo vinylRepo, CustomerService customerService, CartItemRepo cartItemRepo){
+
+    VinylService(VinylRepo vinylRepo, CustomerService customerService, CartItemRepo cartItemRepo, AddressRepo addressRepo, OrderRepo orderRepo){
         this.vinylRepo = vinylRepo;
         this.customerService =  customerService;
         this.cartItemRepo = cartItemRepo;
+        this.addressRepo = addressRepo;
+        this.orderRepo = orderRepo;
     }
 
     public Vinyl addVinyl(Vinyl vinyl){
@@ -56,22 +64,6 @@ public class VinylService {
         response.put("Message", "Vinyl id Deleted "+id);
         
         return response;
-    }
-
-    // order logic
-    public Vinyl addVinylToCustomer(String customerId, String vinylId, int quantity){
-
-        Customer customer = customerService.getCustomerByID(customerId);
-        Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() ->  new VinylException("Vinyl not found with Id : " + vinylId + " Deletion failed"));
-
-        if(vinyl.getStockQuantity() - quantity <= 0 || vinyl.getStockQuantity() <= 0) throw new VinylException("Out of Stock : " + vinylId);
-        vinyl.setStockQuantity(vinyl.getStockQuantity() - quantity);
-
-        customer.getBoughtVinyl().add(vinyl);
-        vinyl.getCustomers().add(customer);
-        vinylRepo.save(vinyl);
-        customerService.saveCustomer(customer);
-        return vinyl;
     }
 
 
@@ -116,7 +108,7 @@ public class VinylService {
         CartItem cartItem = cartItemRepo.findByCustomerAndVinyl(customer, vinyl);
         cartItemRepo.delete(cartItem);
         customer.getCartItems().remove(cartItem);
-        customerService.customerRepo.save(customer);
+        customerService.saveCustomer(customer);
         return true;
     }
 }

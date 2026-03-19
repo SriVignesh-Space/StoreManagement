@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.storemanagement.vinyl.Model.Address;
 import com.storemanagement.vinyl.Model.CartItem;
+import com.storemanagement.vinyl.Model.Order;
 import com.storemanagement.vinyl.Model.Vinyl;
 
 public class CustomerDto{
@@ -14,7 +15,7 @@ public class CustomerDto{
     private String email;
     private String phone;
     private List<CartItem> cart;
-    private List<Vinyl> orders;
+    private List<Order> orders;
     private List<Address> addresses;
 
     
@@ -63,10 +64,10 @@ public class CustomerDto{
     public void setCartItem(List<CartItem> cartItem) {
         this.cart = cartItem;
     }
-    public List<Vinyl> getOrders() {
+    public List<Order> getOrders() {
         return orders;
     }
-    public void setOrders(List<Vinyl> orders) {
+    public void setOrders(List<Order> orders) {
         this.orders = orders;
     }
     public List<Address> getAddresses() {

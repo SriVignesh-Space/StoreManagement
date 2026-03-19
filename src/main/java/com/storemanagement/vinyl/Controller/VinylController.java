@@ -56,11 +56,6 @@ public class VinylController {
         return vinylService.deleteVinyl(id);
     }
 
-    @GetMapping("/order")
-    public Vinyl addVinyl(@RequestParam String customerId, @RequestParam String vinylId, @RequestParam int quantity) {
-        return vinylService.addVinylToCustomer(customerId, vinylId, quantity);
-    } 
-
     @GetMapping("/addcart")
     public CartItem addCartItem(@RequestParam String customerId, @RequestParam String vinylId) {
         return vinylService.addCartItem(customerId, vinylId);

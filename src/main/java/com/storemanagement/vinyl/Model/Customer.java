@@ -51,15 +51,18 @@ public class Customer implements UserDetails{
 
     private String phone;
 
-    @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
-    @JsonIgnore
-    List<Vinyl> boughtVinyl = new ArrayList<>();
+    // @ManyToMany(mappedBy = "customers", fetch = FetchType.EAGER)
+    // @JsonIgnore
+    // List<Vinyl> boughtVinyl = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     List<Address> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    List<CartItem> cartItems = new ArrayList<>();
+    List<CartItem> cartItems = new ArrayList<>();   
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    List<Order> orders = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -69,7 +72,7 @@ public class Customer implements UserDetails{
     @Override
     public String toString() {
         return "Customer [customerId=" + customerId + ", name=" + name + ", email=" + email + ", password=" + password
-                + ", role=" + role + ", phone=" + phone + ", boughtVinyl=" + boughtVinyl + ", addresses=" + addresses
+                + ", role=" + role + ", phone=" + phone + ", orders=" + orders + ", addresses=" + addresses
                 + ", cartItems=" + cartItems + "]";
     }
 

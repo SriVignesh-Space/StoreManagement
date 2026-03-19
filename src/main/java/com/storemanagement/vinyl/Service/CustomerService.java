@@ -1,5 +1,8 @@
 package com.storemanagement.vinyl.Service;
 
+import com.storemanagement.vinyl.Repository.OrderRepo;
+import com.storemanagement.vinyl.Repository.VinylRepo;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,25 +11,36 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.storemanagement.vinyl.Exception.CustomerException;
+import com.storemanagement.vinyl.Exception.VinylException;
 import com.storemanagement.vinyl.Model.Address;
 import com.storemanagement.vinyl.Model.Customer;
+import com.storemanagement.vinyl.Model.Order;
+import com.storemanagement.vinyl.Model.OrderItem;
+import com.storemanagement.vinyl.Model.OrderStatus;
 import com.storemanagement.vinyl.Model.Role;
 import com.storemanagement.vinyl.Model.Vinyl;
 import com.storemanagement.vinyl.Repository.AddressRepo;
 import com.storemanagement.vinyl.Repository.CustomerRepo;
 import com.storemanagement.vinyl.dto.CustomerDto;
+import com.storemanagement.vinyl.dto.OrderDto;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CustomerService {
 
+    OrderRepo orderRepo;
     CustomerRepo customerRepo;
     AddressRepo addressRepo;
     PasswordEncoder passwordEncoder;
+    VinylRepo vinylRepo;
     
-    public CustomerService(CustomerRepo customerRepo, AddressRepo addressRepo, PasswordEncoder passwordEncoder){
+    public CustomerService(CustomerRepo customerRepo, AddressRepo addressRepo, PasswordEncoder passwordEncoder, OrderRepo orderRepo, VinylRepo vinylRepo){
         this.customerRepo = customerRepo;
         this.addressRepo = addressRepo;
         this.passwordEncoder = passwordEncoder;
+        this.orderRepo = orderRepo;
+        this.vinylRepo = vinylRepo;
     }
     
     public List<Customer> getAllCustomers(){
@@ -79,9 +93,9 @@ public class CustomerService {
         return customerRepo.save(customer);
     }
 
-    public List<Vinyl> getVinylForCustomer(String customerId){
+    public List<Order> getVinylForCustomer(String customerId){
         Customer customer = customerRepo.findById(customerId).orElseThrow(() -> new CustomerException("Customer Not Found :" + customerId + "get Vinyl failed"));
-        return customer.getBoughtVinyl();
+        return customer.getOrders();
     }
 
     // address logic 
@@ -99,7 +113,50 @@ public class CustomerService {
         Address address = addressRepo.findById(addressId).orElseThrow(() -> new CustomerException("Address not Found : " + addressId + " Address deletion failed")); 
         customer.getAddresses().remove(address);
         addressRepo.deleteById(addressId);
+        System.out.println("Address Deleted");
         return customerRepo.save(customer);
     }
-    
+ 
+    @Transactional
+    public Order addVinylToCustomer(OrderDto orderDto){
+        
+        String customerId = orderDto.getCustomerId();
+        Map<String, Integer> orderVinyls = orderDto.getOrderVinyls();
+        String addressId = orderDto.getAddressId();
+
+        Customer customer = getCustomerByID(customerId);
+
+        Address address = addressRepo.findById(addressId).orElseThrow(()-> new CustomerException("Address Not Found "+ addressId));;
+
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setAddress(address.getAddress());
+        order.setCountry(address.getCountry());
+        order.setPincode(address.getPincode());
+        order.setPhone(orderDto.getPhone());
+        order.setStatus(OrderStatus.ORDERED);
+
+        for(Map.Entry<String,Integer> entry : orderVinyls.entrySet()){
+
+            String vinylId = entry.getKey();
+            int quantity = entry.getValue();
+
+            Vinyl vinyl = vinylRepo.findById(vinylId).orElseThrow(() -> new VinylException("Vinyl id not found " + vinylId ));
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+
+            if(vinyl.getStockQuantity() - quantity < 0){
+                throw new VinylException("Out of stock " + vinyl.getVinylId());
+            } 
+
+            vinyl.setStockQuantity(vinyl.getStockQuantity() - quantity);
+            orderItem.setVinyl(vinyl);
+            orderItem.setQuantity(quantity);
+            vinyl.getOrderItems().add(orderItem);
+            order.getOrderItems().add(orderItem);
+        }
+        orderRepo.save(order);
+        customer.getOrders().add(order);
+        return order;
+    }
 }

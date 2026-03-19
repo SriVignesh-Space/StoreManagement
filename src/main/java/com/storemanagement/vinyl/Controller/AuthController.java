@@ -12,6 +12,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -28,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/auth/")
-    public ResponseEntity<?> postMethodName(@RequestBody AuthRequest authRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest, HttpServletResponse response) {
         try {
             System.out.println("Auth Req reached");
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
@@ -49,4 +50,22 @@ public class AuthController {
         }
     }
     
+    @GetMapping("/auth/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        try {
+            System.out.println("Auth/logout Req reached");
+            
+            Cookie cookie = new Cookie("token", null);
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(0);
+            cookie.setSecure(false); // change for production
+            cookie.setPath("/");
+
+            response.addCookie(cookie);;
+
+            return ResponseEntity.ok(Map.of("message","Logout success"));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }

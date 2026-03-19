@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.storemanagement.vinyl.Model.Address;
 import com.storemanagement.vinyl.Model.Customer;
-import com.storemanagement.vinyl.Model.Vinyl;
+import com.storemanagement.vinyl.Model.Order;
 import com.storemanagement.vinyl.Service.CustomerService;
 import com.storemanagement.vinyl.dto.CustomerDto;
+import com.storemanagement.vinyl.dto.OrderDto;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,7 +61,7 @@ public class CustomerController {
         customerDto.setUsername(user.getName());
         customerDto.setCartItem(user.getCartItems());
         customerDto.setAddresses(user.getAddresses());
-        customerDto.setOrders(user.getBoughtVinyl());
+        customerDto.setOrders(user.getOrders());
 
         return ResponseEntity.ok(customerDto);
     }
@@ -88,7 +89,7 @@ public class CustomerController {
     }
 
     @GetMapping("/vinyl")
-    public List<Vinyl> getVinylForCustomer(@RequestParam String customerId) {
+    public List<Order> getVinylForCustomer(@RequestParam String customerId) {
         return customerService.getVinylForCustomer(customerId);
     }
     
@@ -101,4 +102,9 @@ public class CustomerController {
     public Customer removeAddress(@RequestParam String customerId, @RequestParam String addressId){
         return customerService.deleteAddress(customerId, addressId);
     }
+
+    @PostMapping("/order")
+    public Order addVinyl(@RequestBody OrderDto orderDto) {
+        return customerService.addVinylToCustomer(orderDto);
+    } 
 }
