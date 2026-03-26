@@ -134,6 +134,7 @@ public class CustomerService {
         order.setCountry(address.getCountry());
         order.setPincode(address.getPincode());
         order.setPhone(orderDto.getPhone());
+        order.setName(customer.getName());
         order.setStatus(OrderStatus.ORDERED);
 
         for(Map.Entry<String,Integer> entry : orderVinyls.entrySet()){
@@ -157,6 +158,18 @@ public class CustomerService {
         }
         orderRepo.save(order);
         customer.getOrders().add(order);
+        return order;
+    }
+
+
+    public List<Order> getAllOrders(){
+        return orderRepo.findAll();
+    }
+
+    public Order updateOrderStatus(String id, OrderStatus status){
+        Order order = orderRepo.findById(id).orElseThrow(() -> new CustomerException(id + " not found... Order updation failed"));
+        order.setStatus(status);
+        orderRepo.save(order);
         return order;
     }
 }

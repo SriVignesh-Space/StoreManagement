@@ -7,13 +7,25 @@ public class OrderDto {
     private Map<String, Integer> orderVinyls;
     private String addressId;
     private String phone;
+    private String name="";   
 
     
+    
+
+    public OrderDto() {
+    }   
+
+
+    
+
     @Override
     public String toString() {
         return "OrderDto [customerId=" + customerId + ", orderVinyls=" + orderVinyls + ", addressId=" + addressId
-                + ", phone=" + phone + "]";
+                + ", phone=" + phone + ", name=" + name + "]";
     }
+
+
+
 
     public OrderDto(String customerId, Map<String, Integer> orderVinyls, String addressId, String phone) {
         this.customerId = customerId;
@@ -46,6 +58,14 @@ public class OrderDto {
     }
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     

@@ -48,15 +48,15 @@ public class VinylService {
     public Vinyl updateVinyl(String vinylId,Vinyl vinyl){
         Vinyl data = vinylRepo.findById(vinylId).orElseThrow(() -> new VinylException("Vinyl not found with Id : " + vinylId + " Updation failed"));
         if(vinyl != null){
-            vinylRepo.delete(data);
-            return vinylRepo.save(vinyl);
+            data.setStockQuantity(vinyl.getStockQuantity());
+            return vinylRepo.save(data);
         }
         else{
             throw new VinylException("vinyl is not in correct format " + vinylId  + "Updation failed");
         }
     }
 
-    public Map<String, String> deleteVinyl(String id){
+    public Map<String, String> deleteVinyl(String id){      
         Map<String, String> response = new HashMap<>();
         Vinyl vinyl = vinylRepo.findById(id).orElseThrow(() -> new VinylException("Vinyl not found with Id : " + id + " Deletion failed"));
 
