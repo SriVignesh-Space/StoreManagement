@@ -39,8 +39,9 @@ public class AuthController {
             Cookie cookie = new Cookie("token", token);
             cookie.setHttpOnly(true);
             cookie.setMaxAge(60*60);
-            cookie.setSecure(false); // change for production
+            cookie.setSecure(true); // change for production
             cookie.setPath("/");
+            cookie.setAttribute("SameSite", "None");
 
             response.addCookie(cookie);
 
@@ -55,12 +56,12 @@ public class AuthController {
         try {
             System.out.println("Auth/logout Req reached");
             
-            Cookie cookie = new Cookie("token", null);
+            Cookie cookie = new Cookie("token", "");
             cookie.setHttpOnly(true);
             cookie.setMaxAge(0);
-            cookie.setSecure(false); // change for production
+            cookie.setSecure(true); // change for production
             cookie.setPath("/");
-
+            cookie.setAttribute("SameSite", "None");
             response.addCookie(cookie);;
 
             return ResponseEntity.ok(Map.of("message","Logout success"));
